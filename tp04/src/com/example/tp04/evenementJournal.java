@@ -31,7 +31,7 @@ public class evenementJournal {
 	*
 	* Retourne une String avec la Date et l'heure
 	*/
-	private String getDate(long time) { // comme dans l'expression long time no sea
+	private String getDate(long time) {
 	    Calendar cal = Calendar.getInstance(Locale.ENGLISH); 
 	    cal.setTimeInMillis(time);
 	    String date = DateFormat.format("dd-MM-yyyy h:mm:ss a", cal).toString();

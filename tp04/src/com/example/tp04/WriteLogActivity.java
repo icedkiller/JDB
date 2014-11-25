@@ -28,12 +28,24 @@ public class WriteLogActivity extends Activity {
 		getMenuInflater().inflate(R.menu.write_log, menu);
 		return true;
 	}
-
+	
+	/**
+	*
+	* @author Charles Perreault
+	*
+	* Retourne dans l'activite principale
+	*/
 	public void ReturnToMain(View view) {
     	Intent intent = new Intent (this, MainActivity.class); 
     	startActivity(intent);
     }
 	
+	/**
+	*
+	* @author Charles Perreault
+	*
+	* Ajoute une note dans le journal de bord et affiche un toast avec le nombre d'evenements
+	*/
 	public void addNote(View view) {
 		mEdit = (EditText)findViewById(R.id.wl_tb_text);
 		/*

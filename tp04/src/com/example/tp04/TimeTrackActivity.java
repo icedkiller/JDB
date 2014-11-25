@@ -21,13 +21,25 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class TimeTrackActivity extends Activity {
-	//Settling des variables de classes Utiles
+	//Setting des variables de classes Utiles
 		MainActivity main;
 		Context context;
 		Button btArreter;
 		Button btCommencer;
 		AnalogClock analogclock;
 		TextView inOuOutTxt;
+		static public long tempsDebut;
+		static public long tempsFin;
+		/*
+		 *  Types d'evenements
+		 * 	Type 0 = Undefined Event Type (or RAW)
+		 *  Type 1 = PunchIn
+		 *  Type 2 = PunchOut Event
+		 *  Type 3 = Comment Or Note Event
+		 *  Type 4 = other
+		 * 
+		 */
+		
 		
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -71,15 +83,6 @@ public class TimeTrackActivity extends Activity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
-	/*
-	 *  Event Type
-	 * 	Type 0 = Undefined Event Type (or RAW)
-	 *  Type 1 = PunchIn
-	 *  Type 2 = PunchOut Event
-	 *  Type 3 = Comment Or Note Event
-	 *  Type 4 = other
-	 * 
-	 */
 	
 	/**
 	*
@@ -113,10 +116,8 @@ public class TimeTrackActivity extends Activity {
 		this.setBTstatus(); //Appel la désactivation des boutons
 		try {
 			//Affichage d'une Toast avec le temps travaillé
-			Long lastevent; 
-			lastevent = Long.parseLong(MainActivity.jdb.findLastEvent().toDataString()); //Trouve le dernier evenement de type 1
 			Context context = getApplicationContext();
-			CharSequence text = ("Vous avez travaillé : " + getDiffTime(lastevent, stopTime));
+			CharSequence text = ("Vous avez travaillé : " + getDiffTime());
 			int duration = Toast.LENGTH_SHORT;
 			Toast toast = Toast.makeText(context, text, duration);
 			toast.setGravity(Gravity.TOP, 0, 15);
@@ -125,32 +126,40 @@ public class TimeTrackActivity extends Activity {
 		}
 	}
 	
-	//Affiche la différence de temps entre 2 timestamp
-	private String getDiffTime(long BeginTime, long EndTime)
+	/**
+	*
+	* @author Charles Perreault, Michael Carignan-Jacob
+	*
+	* Calcule le temps du punch IN.
+	*/	
+	private String getDiffTime()
 	{
 		long time;
-		time = (EndTime - BeginTime);
+		time = (tempsFin - tempsDebut);
 		Calendar cal = Calendar.getInstance(Locale.ENGLISH);
 	    cal.setTimeInMillis(time);
 	    cal.setTimeZone(TimeZone.getTimeZone("GMT"));
 	    
-	    //String date = DateFormat.format("h:mm:ss", cal).toString();
 	    String date = DateFormat.format("mm:ss", cal).toString();
 		return date;
 	}
 	
 	/**
 	*
-	* @author Anthony Pugliese
+	* @author Anthony Pugliese, Michael Carignan-Jacob
 	*
-	* Retourne true si le dernier élément de la list est un punch In
+	* Retourne true si le dernier élément de la liste est un punch In
 	*/
 	private boolean PunchedIn(){
 		if(!MainActivity.jdb.JournaldeBord.isEmpty()){//Si
 			evenementJournal dernierEnevement =	MainActivity.jdb.findLastEvent();
 			if(dernierEnevement.type == 1){ //c'est un punch in
+				tempsDebut = System.currentTimeMillis();
 				return true;
-			}
+			}else
+				if(dernierEnevement.type == 3){ //Il vient d'écrire dans le journal, donc il est déjà punch IN.
+					return true;
+				}
 		}
 		return false;
 	}
@@ -172,11 +181,10 @@ public class TimeTrackActivity extends Activity {
 	
 	/**
 	*
-	* @author Charles Perreault
+	* @author Charles Perreault, Anthony Pugliese, Michael Carignan-Jacob
 	*
-	* 
+	* Active ou désactive les boutons Commencer et Arreter, en fonction de si on a punché ou non.
 	*/
-	//Active ou désactive les boutons Commencer et Arreter, en fonction de si on a punché ou non.
 	private void setBTstatus()
 	{
 		if (PunchedIn()) { // Dans le cas que l'on aurait punché
@@ -185,6 +193,7 @@ public class TimeTrackActivity extends Activity {
 			inOuOutTxt.setText("IN");
 		}
 		else{ // Dans le cas où on aurait pas punché
+			tempsFin = System.currentTimeMillis();
 			btCommencer.setEnabled(true);
 			btArreter.setEnabled(false);
 			inOuOutTxt.setText("OUT");

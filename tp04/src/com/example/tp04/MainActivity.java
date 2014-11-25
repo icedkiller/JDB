@@ -20,13 +20,13 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
         if(jdb == null){// Un peu le "First Launch"
-        	jdb = new Journal("Journal1"); // On crée un nouveau Journal
+        	jdb = new Journal("Journal1", this); // On crée un nouveau Journal
 	        jdb.Path = getFilesDir(); // On lui donne la variable du Path où on enregistre les fichiers
         }
          
         // Loader les sessions de travail précédente
-        //jdb.JournaldeBord = jdb.loadFromDevice(); 
-        //Afficher une Toast le nombre d'événement dans le Journal | Facultatif
+        jdb.JournaldeBord = jdb.loadFromDevice(); 
+        //Afficher une Toast le nombre d'événement dans le Journal 
         Toast toast;
 		Context context = this;
 		String text;
@@ -84,7 +84,7 @@ public class MainActivity extends Activity {
     
 	/**
 	*
-	* @author Anthony Pugliese
+	* @author Anthony Pugliese, Michael Carignan-Jacob
 	*
 	* Vérifie dans la liste si le dernier élément est un punch IN 
 	*/
@@ -93,46 +93,13 @@ public class MainActivity extends Activity {
 			evenementJournal dernierEnevement =	MainActivity.jdb.findLastEvent();
 			if(dernierEnevement.type == 1){ //c'est un punch in
 				return true;
-			}
+			}else
+				if(dernierEnevement.type == 3){ //Il vient d'écrire dans le journal, donc il est déjà punch IN.
+					return true;
+				}
     	}
 			return false;
-    }
-    
-	/**
-	*
-	* @author Charles Perreault, Anthony Pugliese
-	*
-	* 
-	*/
-	/*private boolean PunchedInOrFalse(){
-		/*
-		 *  Event Type
-		 * 	Type 0 = Undefined Event Type (or RAW)
-		 *  Type 1 = PunchIn
-		 *  Type 2 = PunchOut Event
-		 *  Type 3 = Comment Or Note Event
-		 *  Type 4 = other
-		 * 
-		 
-		evenementJournal ejPunchedIN;
-		evenementJournal ejPunchedOut;
-		ejPunchedIN = jdb.findLastEvent(1);
-		ejPunchedOut = jdb.findLastEvent(2);
-		
-		//Regarde si les valeures ne sont pas null pour éviter les erreures
-		if(ejPunchedIN != null && ejPunchedOut != null){
-		long l_ejPI = Long.parseLong(ejPunchedIN.Data);
-		long l_ejPO = Long.parseLong(ejPunchedOut.Data);
-		
-		if (l_ejPI >= l_ejPO) {
-			return true;
-		}
-		}
-		//Les valeures sont nulls ou punchIn < punchOut
-		return false;
-		
-	}
-    */
+    }    
 	
     @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
